@@ -38,10 +38,10 @@ function initMap() {
 function addHotelMarkers() {
     const hotelIcon = L.divIcon({
         className: 'custom-marker',
-        html: '<div style="background: #4CAF50; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🏨</div>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-        popupAnchor: [0, -15]
+        html: '<div style="background: #4CAF50; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; border: 4px solid white; box-shadow: 0 3px 12px rgba(0,0,0,0.4);">🏨</div>',
+        iconSize: [45, 45],
+        iconAnchor: [22.5, 22.5],
+        popupAnchor: [0, -22.5]
     });
 
     tourData.hotels.forEach(hotel => {
@@ -277,6 +277,15 @@ function initializeApp() {
 
     try {
         initMap();
+
+        // 移动端：延迟重新计算地图尺寸，确保正确显示
+        setTimeout(function() {
+            if (map) {
+                map.invalidateSize();
+                console.log('Map size recalculated');
+            }
+        }, 500);
+
         updateTimes();
         setInterval(updateTimes, 1000); // 每秒更新时间
         console.log('App initialized successfully');

@@ -653,6 +653,7 @@ body {
 
     .map-container {
         height: 500px;
+        min-height: 500px;
     }
 
     .header-content {
@@ -682,6 +683,8 @@ body {
 
     .sidebar {
         padding: 16px;
+        max-height: none;
+        height: auto;
     }
 
     .time-value {
@@ -700,5 +703,15 @@ body {
     .toolbar-buttons {
         width: 100%;
         justify-content: center;
+    }
+
+    /* 移动端地图容器优化 */
+    .map-container {
+        height: 60vh;
+        min-height: 400px;
+    }
+
+    #map {
+        min-height: 350px;
     }
 }
