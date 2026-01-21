@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>越南胡志明旅游</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>🇻🇳 越南胡志明旅游</h1>
+                    <div class="trip-info">
+                        <span class="badge">VN4D-250123</span>
+                        <span class="date">2026年1月23日-26日</span>
+                    </div>
+                    <div class="data-version" id="dataVersion"></div>
+                </div>
+                <div class="header-right">
+                    <div class="time-display">
+                        <div class="time-item">
+                            <span class="time-label">🇨🇳 上海</span>
+                            <span class="time-value" id="shanghaiTime">--:--:--</span>
+                        </div>
+                        <div class="time-divider"></div>
+                        <div class="time-item">
+                            <span class="time-label">🇻🇳 胡志明</span>
+                            <span class="time-value" id="hcmcTime">--:--:--</span>
+                        </div>
+                    </div>
+                    <div class="copyright">© 2026 Double Apple (小鹏)</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <!-- 航班信息 -->
+                <div class="panel">
+                    <h3>✈️ 航班信息</h3>
+                    <div id="flightInfo"></div>
+                </div>
+
+                <!-- 酒店信息 -->
+                <div class="panel">
+                    <h3>🏨 住宿酒店</h3>
+                    <div id="hotelList"></div>
+                </div>
+
+                <!-- 行程概览 -->
+                <div class="panel">
+                    <h3>📅 行程概览</h3>
+                    <div class="itinerary-list" id="itineraryList"></div>
+                </div>
+
+                <!-- 详细时间表 -->
+                <div class="panel">
+                    <h3>🕘 详细时间表</h3>
+                    <div id="detailSchedule"></div>
+                </div>
+
+                <!-- 注意事项 -->
+                <div class="panel">
+                    <h3>⚠️ 重要提示</h3>
+                    <div class="tips-list" id="tipsList"></div>
+                </div>
+
+                <!-- 紧急联系方式 -->
+                <div class="panel">
+                    <h3>📞 紧急联系</h3>
+                    <div id="emergencyContacts"></div>
+                </div>
+            </aside>
+
+            <!-- 地图容器 -->
+            <div class="map-container">
+                <!-- 快速定位工具栏 -->
+                <div class="location-toolbar">
+                    <label for="locationSelect">📍 快速定位：</label>
+                    <select id="locationSelect" class="location-select" onchange="focusLocation(this.value)">
+                        <option value="">-- 选择要查看的地点 --</option>
+                    </select>
+                    <div class="toolbar-buttons">
+                        <button onclick="fitAllMarkers()" class="toolbar-btn" title="显示全部地点">🔍 显示全部</button>
+                        <button onclick="toggleDayRoute()" class="toolbar-btn" title="显示/隐藏游览路线">🛤️ 显示路线</button>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- 数据文件 -->
+    <script src="../data/data.js"></script>
+
+    <!-- 主应用 -->
+    <script src="app.js"></script>
+</body>
+</html>
