@@ -328,6 +328,8 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
+    /* 确保地图容器始终有高度 */
+    min-height: 400px;
 }
 
 /* 快速定位工具栏 */
@@ -424,6 +426,9 @@ body {
     width: 100%;
     flex: 1;
     min-height: 400px;
+    /* 确保地图元素始终可见 */
+    position: relative;
+    z-index: 1;
 }
 
 /* Leaflet popup 自定义样式 */
@@ -707,11 +712,18 @@ body {
 
     /* 移动端地图容器优化 */
     .map-container {
-        height: 60vh;
-        min-height: 400px;
+        height: 50vh;
+        min-height: 350px !important;
+        max-height: 600px;
     }
 
     #map {
-        min-height: 350px;
+        min-height: 300px !important;
+        height: 100%;
+    }
+
+    /* 确保主容器不会太高 */
+    .main-content {
+        min-height: auto;
     }
 }

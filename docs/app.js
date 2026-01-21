@@ -278,13 +278,29 @@ function initializeApp() {
     try {
         initMap();
 
-        // 移动端：延迟重新计算地图尺寸，确保正确显示
+        // 移动端：多次延迟重新计算地图尺寸，确保正确显示
         setTimeout(function() {
             if (map) {
                 map.invalidateSize();
-                console.log('Map size recalculated');
+                console.log('Map size recalculated (1st time)');
             }
-        }, 500);
+        }, 300);
+
+        setTimeout(function() {
+            if (map) {
+                map.invalidateSize();
+                console.log('Map size recalculated (2nd time)');
+            }
+        }, 800);
+
+        setTimeout(function() {
+            if (map) {
+                map.invalidateSize();
+                console.log('Map size recalculated (3rd time)');
+                // 最后一次调整视图
+                fitAllMarkers();
+            }
+        }, 1500);
 
         updateTimes();
         setInterval(updateTimes, 1000); // 每秒更新时间
@@ -297,6 +313,15 @@ function initializeApp() {
         }
     }
 }
+
+// 监听窗口大小变化
+window.addEventListener('resize', function() {
+    if (map) {
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
+    }
+});
 
 // 更新双时区时间
 function updateTimes() {
