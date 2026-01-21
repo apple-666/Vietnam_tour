@@ -261,24 +261,33 @@ function toggleDayRoute() {
     }
 }
 
-// 页面加载完成后初始化地图
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
+// 初始化应用（由 HTML 中的 window.load 事件调用）
+function initializeApp() {
+    console.log('App Initializing');
     console.log('tourData:', tourData);
-    console.log('tourData.airports:', tourData.airports);
-    console.log('tourData.hotels:', tourData.hotels);
-    console.log('tourData.attractions:', tourData.attractions);
 
     if (typeof tourData === 'undefined') {
         console.error('tourData is undefined! Check data.js loading.');
-        alert('数据加载失败，请刷新页面！');
+        const mapEl = document.getElementById('map');
+        if (mapEl) {
+            mapEl.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">数据加载失败，请刷新页面！</div>';
+        }
         return;
     }
 
-    initMap();
-    updateTimes();
-    setInterval(updateTimes, 1000); // 每秒更新时间
-});
+    try {
+        initMap();
+        updateTimes();
+        setInterval(updateTimes, 1000); // 每秒更新时间
+        console.log('App initialized successfully');
+    } catch (error) {
+        console.error('Initialization error:', error);
+        const mapEl = document.getElementById('map');
+        if (mapEl) {
+            mapEl.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">初始化失败: ' + error.message + '</div>';
+        }
+    }
+}
 
 // 更新双时区时间
 function updateTimes() {

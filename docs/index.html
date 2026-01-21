@@ -111,5 +111,18 @@
 
     <!-- 主应用 -->
     <script src="app.js"></script>
+
+    <!-- 初始化应用 - 确保在所有资源加载后执行 -->
+    <script>
+        // 使用 window.load 确保所有资源（包括图片、样式）都加载完成
+        window.addEventListener('load', function() {
+            console.log('Window loaded, initializing app...');
+            if (typeof initializeApp === 'function') {
+                initializeApp();
+            } else {
+                console.error('initializeApp function not found!');
+            }
+        });
+    </script>
 </body>
 </html>
