@@ -106,22 +106,62 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* 汇率比例显示 */
-.rate-display {
-    display: inline-flex;
+/* 货币换算器 - 与 stats-display 样式统一 */
+.currency-converter {
+    display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
     background: rgba(255, 255, 255, 0.15);
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 8px;
     backdrop-filter: blur(10px);
+    max-width: 320px;  /* 稍微加宽以容纳单位文字 */
 }
 
-.rate-text {
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.currency-input {
+    width: 110px;  /* 固定宽度，不要太长 */
+    padding: 6px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
     font-size: 14px;
     font-weight: 600;
-    color: white;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.currency-input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.currency-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);  /* 更淡的灰色，表示默认值 */
+    font-weight: 400;  /* 字重轻一点 */
+}
+
+.currency-unit {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
     letter-spacing: 0.5px;
+}
+
+.currency-divider {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+    flex-shrink: 0;
 }
 
 /* PDF 下载按钮 */
@@ -807,13 +847,18 @@ body {
     /* 确保头部内容在移动端可见 */
     .stats-display,
     .pdf-download-btn,
-    .rate-display {
+    .currency-converter {
         width: 100%;
         justify-content: center;
     }
 
-    .rate-text {
-        font-size: 13px;  /* 移动端稍微缩小 */
+    .currency-input {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+
+    .currency-divider {
+        font-size: 16px;
     }
 }
 
@@ -882,6 +927,20 @@ body {
         white-space: normal;  /* 允许换行显示长文字 */
         line-height: 1.3;
         text-align: center;
+    }
+
+    /* 货币换算器移动端优化 */
+    .currency-converter {
+        padding: 6px 12px;
+    }
+
+    .currency-input {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    .currency-divider {
+        font-size: 14px;
     }
 }
 

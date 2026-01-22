@@ -28,6 +28,7 @@
                     <div class="data-version" id="dataVersion"></div>
                 </div>
                 <div class="header-right">
+                    <!-- 时间显示 -->
                     <div class="time-display">
                         <div class="time-item">
                             <span class="time-label">🇨🇳 上海</span>
@@ -39,10 +40,20 @@
                             <span class="time-value" id="hcmcTime">--:--:--</span>
                         </div>
                     </div>
-                    <!-- 汇率比例 -->
-                    <div class="rate-display">
-                        <span class="rate-text">汇率: 3500越南盾换1人民币</span>
+
+                    <!-- 货币换算器 -->
+                    <div class="currency-converter">
+                        <div class="input-wrapper">
+                            <input type="number" id="vndInput" class="currency-input" placeholder="3500" oninput="convertVNDtoCNY()">
+                            <span class="currency-unit">越南盾</span>
+                        </div>
+                        <div class="currency-divider">=</div>
+                        <div class="input-wrapper">
+                            <input type="number" id="cnyInput" class="currency-input" placeholder="1" oninput="convertCNYtoVND()">
+                            <span class="currency-unit">人民币</span>
+                        </div>
                     </div>
+
                     <!-- 浏览量和点赞 -->
                     <div class="stats-display">
                         <div class="stat-item" title="总浏览量">
@@ -57,10 +68,13 @@
                             <span class="stat-label">点赞</span>
                         </div>
                     </div>
+
                     <!-- PDF 下载按钮 -->
                     <a href="../20260123【上海往返】胡志明4天纯玩（出团通知书）.pdf" download class="pdf-download-btn" title="下载完整行程单">
                         📄 详细行程单（由若男提供）
                     </a>
+
+                    <!-- 版权信息 -->
                     <div class="copyright">© 2026 Double Apple (小鹏)</div>
                 </div>
             </div>
@@ -137,7 +151,7 @@
     <!-- 数据文件 -->
     <script src="data.js"></script>
 
-    <!-- 主应用 -->
+    <!-- 主应用 - 已支持离线瓦片（本地优先，在线备用） -->
     <script src="app.js"></script>
 </body>
 </html>

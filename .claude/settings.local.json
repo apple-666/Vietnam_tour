@@ -6,7 +6,14 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(done:*)",
+      "Bash(timeout:*)",
+      "Bash(exit:*)",
+      "Bash(ls:*)"
     ]
   }
 }

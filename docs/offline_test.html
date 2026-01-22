@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线地图测试</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .status-item {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-item h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .status-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .status-item.success {
+            border-left-color: #43A047;
+        }
+
+        .status-item.warning {
+            border-left-color: #FB8C00;
+        }
+
+        #map {
+            height: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-panel h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-panel li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        .info-panel li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ 离线地图测试</h1>
+            <p style="color: #666;">测试胡志明市离线地图功能是否正常工作</p>
+
+            <div class="status">
+                <div class="status-item" id="localStatus">
+                    <h3>本地瓦片</h3>
+                    <div class="value" id="localCount">-</div>
+                </div>
+                <div class="status-item" id="onlineStatus">
+                    <h3>在线备用</h3>
+                    <div class="value" id="onlineCount">-</div>
+                </div>
+                <div class="status-item" id="modeStatus">
+                    <h3>工作模式</h3>
+                    <div class="value" id="modeValue">检测中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="info-panel">
+            <h2>📋 测试说明</h2>
+            <ul>
+                <li>✅ 地图应显示胡志明市中心区域</li>
+                <li>✅ 如果本地瓦片存在，优先使用本地（速度更快）</li>
+                <li>✅ 如果本地瓦片不存在，自动使用在线备用服务器</li>
+                <li>✅ 打开浏览器控制台（F12）查看详细日志</li>
+                <li>✅ 尝试缩放地图到不同级别，测试瓦片加载</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 统计数据
+        let localCount = 0;
+        let onlineCount = 0;
+
+        // 初始化地图
+        const map = L.map('map').setView([10.7740, 106.6900], 13);
+
+        // 添加瓦片层（优先本地，回退在线）
+        const tileLayer = L.tileLayer('tiles/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 15,
+            minZoom: 10,
+            timeout: 5000,
+            crossOrigin: true
+        });
+
+        // 监听瓦片错误（使用在线备用）
+        tileLayer.on('tileerror', function(error) {
+            const tile = error.tile;
+            const url = tile.src;
+            const coords = url.match(/tiles\/(\d+)\/(\d+)\/(\d+)\.png/);
+
+            if (coords) {
+                onlineCount++;
+                const z = coords[1];
+                const x = coords[2];
+                const y = coords[3];
+                tile.src = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+                updateStatus();
+            }
+        });
+
+        // 监听瓦片加载成功
+        tileLayer.on('tileload', function() {
+            localCount++;
+            updateStatus();
+        });
+
+        // 地图加载完成
+        tileLayer.on('load', function() {
+            console.log('✅ 地图加载完成');
+            console.log(`📊 本地瓦片: ${localCount}, 在线备用: ${onlineCount}`);
+
+            const modeValue = document.getElementById('modeValue');
+            if (onlineCount === 0) {
+                modeValue.textContent = '🎉 完全离线';
+                modeValue.style.color = '#43A047';
+            } else if (onlineCount < 50) {
+                modeValue.textContent = '⚠️ 部分离线';
+                modeValue.style.color = '#FB8C00';
+            } else {
+                modeValue.textContent = '🌐 主要在线';
+                modeValue.style.color = '#E53935';
+            }
+        });
+
+        tileLayer.addTo(map);
+
+        // 添加胡志明市中心标记
+        L.marker([10.7740, 106.6900])
+            .addTo(map)
+            .bindPopup('🇻🇳 胡志明市中心')
+            .openPopup();
+
+        // 更新状态显示
+        function updateStatus() {
+            document.getElementById('localCount').textContent = localCount;
+            document.getElementById('onlineCount').textContent = onlineCount;
+
+            const localStatus = document.getElementById('localStatus');
+            const onlineStatus = document.getElementById('onlineStatus');
+
+            if (localCount > 0) {
+                localStatus.classList.add('success');
+            }
+            if (onlineCount > 0) {
+                onlineStatus.classList.add('warning');
+            }
+        }
+
+        // 控制台提示
+        console.log('=' .repeat(60));
+        console.log('🗺️ 离线地图测试');
+        console.log('=' .repeat(60));
+        console.log('💡 提示：');
+        console.log('  - 绿色数字 = 本地瓦片数量');
+        console.log('  - 橙色数字 = 在线备用瓦片数量');
+        console.log('  - 目标：localCount 越多越好，onlineCount 越少越好');
+        console.log('=' .repeat(60));
+    </script>
+</body>
+</html>

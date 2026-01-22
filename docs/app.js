@@ -6,120 +6,68 @@ let airportMarkers = [];
 let routeLayers = [];
 let currentDayLayer = null;
 
-// 初始化地图 - 深度修复 Android 端加载问题
+// 初始化地图 - 支持离线瓦片版本
 function initMap() {
-    console.log('🗺️ 初始化地图（Android 优化版）...');
+    console.log('🗺️ 初始化地图（离线瓦片支持）...');
 
     // 创建地图，中心定位在胡志明市
     map = L.map('map', {
-        preferCanvas: true,  // 使用 Canvas 渲染，性能更好
-        zoomControl: true,
-        // 移动端优化选项
-        fadeAnimation: false,  // 关闭动画以加快加载
-        zoomAnimation: false,
-        markerZoomAnimation: false,
-        updateWhenIdle: false,  // 持续更新而非空闲时更新
-        // 关键：增加超时时间
-        timeout: 30000  // 30秒超时（默认是10秒）
+        preferCanvas: true,
+        zoomControl: true
     }).setView([10.7740, 106.6900], 13);
 
-    // 多重瓦片服务器策略 - 从快到慢依次尝试
-    const tileProviders = [
-        {
-            name: 'OpenStreetMap (CDN)',
-            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        },
-        {
-            name: 'CartoDB Positron',
-            url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        },
-        {
-            name: 'OpenStreetMap France',
-            url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }
-    ];
+    // 统计在线回退次数
+    let onlineFallbackCount = 0;
 
-    let currentProviderIndex = 0;
-    let tileLayer;
+    // 添加瓦片层（优先本地，回退在线）
+    const tileLayer = L.tileLayer('tiles/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 15,  // 本地瓦片最大缩放级别
+        minZoom: 10,  // 最小缩放级别
+        timeout: 5000,  // 5秒超时，快速失败
+        crossOrigin: true
+    });
 
-    // 尝试加载瓦片
-    function loadTileProvider() {
-        if (currentProviderIndex >= tileProviders.length) {
-            console.error('❌ 所有瓦片服务器都失败了');
-            showError();
-            return;
-        }
+    // 监听瓦片加载错误 - 自动回退到在线服务器
+    tileLayer.on('tileerror', function(error) {
+        const tile = error.tile;
+        const url = tile.src;
 
-        const provider = tileProviders[currentProviderIndex];
-        console.log(`📡 尝试瓦片服务器 ${currentProviderIndex + 1}/${tileProviders.length}: ${provider.name}`);
+        // 提取瓦片坐标
+        const coords = url.match(/tiles\/(\d+)\/(\d+)\/(\d+)\.png/);
+        if (coords) {
+            onlineFallbackCount++;
+            const z = coords[1];
+            const x = coords[2];
+            const y = coords[3];
 
-        // 移除旧的瓦片层
-        if (tileLayer) {
-            map.removeLayer(tileLayer);
-        }
+            // 使用在线备用服务器
+            const onlineUrl = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+            tile.src = onlineUrl;
 
-        // 创建新的瓦片层
-        tileLayer = L.tileLayer(provider.url, {
-            attribution: provider.attrribution,
-            maxZoom: 19,
-            minZoom: 2,
-            // 关键配置
-            subdomains: 'abc',
-            timeout: 30000,  // 30秒超时
-            retry: 3,  // 重试3次
-            crossOrigin: true,
-            // Android 优化
-            detectRetina: false,  // 关闭 Retina 支持，减少瓦片数量
-            keepBuffer: 5  // 预加载5层瓦片
-        });
-
-        // 监听瓦片加载事件
-        let tilesLoaded = 0;
-        let tilesFailed = 0;
-        const totalTilesExpected = 20;  // 预期加载20个瓦片
-
-        tileLayer.on('load', function() {
-            console.log(`✅ ${provider.name} 加载成功！`);
-            tilesLoaded = totalTilesExpected;  // 标记为成功
-        });
-
-        tileLayer.on('tileerror', function(error) {
-            tilesFailed++;
-            console.warn(`⚠️ ${provider.name} 瓦片加载失败 (${tilesFailed})`);
-
-            // 如果失败超过5个，尝试下一个服务器
-            if (tilesFailed > 5 && currentProviderIndex < tileProviders.length - 1) {
-                currentProviderIndex++;
-                console.log(`🔄 切换到下一个瓦片服务器...`);
-                setTimeout(loadTileProvider, 1000);  // 等待1秒后重试
+            if (onlineFallbackCount <= 5) {
+                console.log(`🌐 本地瓦片 ${z}/${x}/${y} 不存在，使用在线备用`);
             }
-        });
+        }
+    });
 
-        tileLayer.addTo(map);
-
-        // 10秒后检查是否有任何瓦片成功加载
-        setTimeout(function() {
-            const tiles = document.querySelectorAll('.leaflet-tile-container img');
-            const loadedTiles = Array.from(tiles).filter(img => img.complete && img.naturalHeight !== 0);
-
-            if (loadedTiles.length === 0 && currentProviderIndex < tileProviders.length - 1) {
-                console.warn(`⏰ ${provider.name} 10秒内无瓦片加载，尝试下一个...`);
-                currentProviderIndex++;
-                loadTileProvider();
-            } else if (loadedTiles.length > 0) {
-                console.log(`✅ 成功加载 ${loadedTiles.length} 个瓦片`);
+    tileLayer.on('load', function() {
+        console.log('✅ 地图瓦片加载完成');
+        if (onlineFallbackCount > 0) {
+            console.log(`💡 ${onlineFallbackCount} 个瓦片使用在线备用服务器`);
+            if (onlineFallbackCount > 50) {
+                console.log('⚠️ 大量瓦片使用在线服务器，建议检查本地瓦片');
+            } else {
+                console.log('🎉 大部分瓦片来自本地，性能良好！');
             }
-        }, 10000);
-    }
+        } else {
+            console.log('🎉 完全离线模式！所有瓦片均来自本地');
+        }
+    });
 
-    // 开始加载瓦片
-    loadTileProvider();
+    tileLayer.addTo(map);
 
-    // 显示加载提示
-    showMapLoadingHint();
+    console.log('✅ 地图初始化成功');
 
     // 添加标记
     addHotelMarkers();
@@ -133,7 +81,7 @@ function initMap() {
     renderHotelList();
     renderDetailSchedule();
     renderEmergencyContacts();
-    renderExchangeRate();  // 渲染汇率信息
+    renderExchangeRate();
     renderDataVersion();
     updatePageTitle();
     populateLocationSelect();
@@ -740,30 +688,22 @@ function safeLocalStorage(action, key, value) {
 // 初始化统计数据
 function initStats() {
     console.log('💾 初始化浏览量和点赞数据...');
-    let views = safeLocalStorage('get', 'vietnam_tour_views');
+
+    // 直接使用固定值，不再每次刷新都增加
+    // 从 localStorage 读取点赞数（因为点赞数会因用户点击而变化）
     let likes = safeLocalStorage('get', 'vietnam_tour_likes');
-
-    // 如果是第一次访问（localStorage为空），使用初始值
-    if (!views || views === '0') {
-        views = '756';  // 初始浏览量
-        console.log('🎯 首次访问，使用初始值');
-    } else {
-        // 否则增加浏览量（每次页面加载都+1）
-        views = (parseInt(views) + 1).toString();
-        console.log('📈 浏览量+1');
-    }
-
     if (!likes || likes === '0') {
         likes = '2658';  // 初始点赞数
-        console.log('⭐ 首次访问，使用初始点赞值');
     }
 
-    // 保存到 localStorage
-    safeLocalStorage('set', 'vietnam_tour_views', views.toString());
+    // 浏览量固定为 756
+    const views = '756';
+
+    // 保存点赞数到 localStorage
     safeLocalStorage('set', 'vietnam_tour_likes', likes.toString());
 
     console.log('📊 当前数据 - 浏览量:', views, '点赞数:', likes);
-    console.log('✅ 初始化完成 - 浏览量:', views, '点赞数:', likes);
+    console.log('✅ 初始化完成');
 
     updateStatsDisplay(views, likes);
 
@@ -880,6 +820,38 @@ function createFloatingStars() {
                 }
             }, 1000);
         }, i * 50);  // 每个星星间隔50ms出现
+    }
+}
+
+// ==================== 货币转换功能 ====================
+
+// 越南盾转人民币
+function convertVNDtoCNY() {
+    const vndInput = document.getElementById('vndInput');
+    const cnyInput = document.getElementById('cnyInput');
+    const vnd = parseFloat(vndInput.value);
+
+    if (!isNaN(vnd) && vnd >= 0) {
+        // 使用汇率：3500 VND = 1 CNY
+        const cny = vnd / 3500;
+        cnyInput.value = cny.toFixed(2);
+    } else {
+        cnyInput.value = '';
+    }
+}
+
+// 人民币转越南盾
+function convertCNYtoVND() {
+    const vndInput = document.getElementById('vndInput');
+    const cnyInput = document.getElementById('cnyInput');
+    const cny = parseFloat(cnyInput.value);
+
+    if (!isNaN(cny) && cny >= 0) {
+        // 使用汇率：1 CNY = 3500 VND
+        const vnd = cny * 3500;
+        vndInput.value = vnd.toFixed(0);
+    } else {
+        vndInput.value = '';
     }
 }
 
