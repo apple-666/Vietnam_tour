@@ -14,6 +14,24 @@ const tourData = {
         duration: '4天3晚'
     },
 
+    // 汇率信息
+    exchangeRate: {
+        cny: 'CNY',  // 人民币
+        vnd: 'VND',  // 越南盾
+        rate: 3500,  // 1 CNY = 3500 VND（参考汇率）
+        lastUpdated: '2026-01-21',
+        note: '实际汇率以兑换时为准',
+        // 常用金额参考
+        commonAmounts: [
+            { cny: 1, vnd: 3500, label: '1元' },
+            { cny: 10, vnd: 35000, label: '10元' },
+            { cny: 50, vnd: 175000, label: '50元' },
+            { cny: 100, vnd: 350000, label: '100元' },
+            { cny: 500, vnd: 1750000, label: '500元' },
+            { cny: 1000, vnd: 3500000, label: '1000元' }
+        ]
+    },
+
     // 航班信息
     flights: {
         departure: {

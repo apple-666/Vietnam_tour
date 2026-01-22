@@ -106,6 +106,103 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* PDF 下载按钮 */
+.pdf-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.pdf-download-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pdf-download-btn:active {
+    transform: translateY(0);
+}
+
+/* 浏览量和点赞统计 */
+.stats-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: white;
+}
+
+.stat-item.clickable {
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.stat-item.clickable:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.stat-item.clickable:active {
+    transform: scale(0.95);
+}
+
+.stat-item.clickable.liked {
+    animation: likeAnimation 0.3s ease;
+}
+
+@keyframes likeAnimation {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.stat-icon {
+    font-size: 16px;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 15px;
+    min-width: 30px;
+    text-align: center;
+    transition: transform 0.15s ease;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
 .badge {
     background: rgba(255, 255, 255, 0.25);
     padding: 6px 16px;
@@ -328,6 +425,10 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
+    /* 确保容器有最小高度 */
+    min-height: 400px;
+    /* 确保容器有明确的宽度 */
+    width: 100%;
 }
 
 /* 快速定位工具栏 */
@@ -421,15 +522,109 @@ body {
 }
 
 #map {
+    /* 确保地图填满容器 */
     width: 100%;
+    height: 100%;
     flex: 1;
     min-height: 400px;
+    /* 防止溢出 */
+    overflow: hidden;
+    /* 确保定位正确 */
+    position: relative;
 }
 
 /* Leaflet popup 自定义样式 */
 .leaflet-popup-content-wrapper {
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Leaflet 地图容器修复 */
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+    /* 确保 Leaflet 容器填满父元素 */
+}
+
+/* Leaflet 地图层修复 */
+.leaflet-map-pane {
+    z-index: 1;
+}
+
+/* 修复移动端地图渲染问题 */
+.leaflet-container .leaflet-pane {
+    z-index: 1 !important;
+}
+
+.leaflet-container .leaflet-marker-pane {
+    z-index: 600 !important;
+}
+
+.leaflet-container .leaflet-popup-pane {
+    z-index: 700 !important;
+}
+
+/* 确保地图控件在移动端正确显示 */
+.leaflet-control-container {
+    z-index: 800 !important;
+}
+
+/* 修复移动端触摸交互 */
+.leaflet-container {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+}
+
+/* 确保 tile layer 正确显示 */
+.leaflet-tile-pane {
+    z-index: 2 !important;
+}
+
+/* Android 地图显示修复 */
+.leaflet-container {
+    /* 确保 Android 设备上地图容器正确渲染 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* 防止 GPU 渲染问题 */
+    will-change: transform;
+}
+
+/* 修复 Android 端地图瓦片加载问题 */
+.leaflet-tile-container {
+    /* 确保瓦片正确显示 */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+}
+
+.leaflet-tile {
+    /* 防止瓦片闪烁 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* 确保瓦片不透明 */
+    background: transparent;
+}
+
+/* 修复 Android Chrome 地图交互问题 */
+.leaflet-overlay-pane,
+.leaflet-marker-pane,
+.leaflet-shadow-pane,
+.leaflet-popup-pane {
+    /* 确保所有图层正确渲染 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}
+
+/* 修复地图加载时的灰色背景问题 */
+.leaflet-container:-webkit-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.leaflet-container:fullscreen {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .leaflet-popup-content {
@@ -639,6 +834,126 @@ body {
     color: #555;
 }
 
+/* 汇率信息 */
+.exchange-rate {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rate-main {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 16px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+}
+
+.rate-formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.currency-cny {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.currency-vnd {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.rate-equals {
+    font-size: 20px;
+}
+
+.rate-value {
+    font-size: 24px;
+    color: #FFD700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.rate-note {
+    font-size: 12px;
+    opacity: 0.95;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.rate-updated {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 6px;
+}
+
+/* 常用金额速查 */
+.rate-quick-ref {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.quick-ref-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.quick-ref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quick-ref-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+}
+
+.quick-ref-item:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    transform: translateX(4px);
+}
+
+.ref-cny {
+    font-weight: 600;
+    color: #1976d2;
+    min-width: 50px;
+}
+
+.ref-arrow {
+    color: #999;
+    font-size: 14px;
+}
+
+.ref-vnd {
+    font-weight: 600;
+    color: #d32f2f;
+    text-align: right;
+}
+
 /* 响应式设计 */
 @media (max-width: 1024px) {
     .main-content {
@@ -652,7 +967,17 @@ body {
     }
 
     .map-container {
-        height: 500px;
+        width: 100%;
+        height: 600px !important; /* 增加高度以容纳工具栏和地图 */
+        min-height: 600px !important;
+    }
+
+    /* 修复移动端地图高度问题 */
+    #map {
+        width: 100%;
+        /* 不需要设置 height，由 flex: 1 自动填充 */
+        flex: 1; /* 保持 flex: 1 以占据剩余空间 */
+        min-height: 550px !important;
     }
 
     .header-content {
@@ -668,6 +993,16 @@ body {
     .time-display {
         width: 100%;
         justify-content: space-around;
+    }
+
+    .pdf-download-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-display {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -688,6 +1023,24 @@ body {
         font-size: 16px;
     }
 
+    /* PDF 下载按钮在移动端的优化 */
+    .pdf-download-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    /* 移动端地图容器高度优化 */
+    .map-container {
+        height: 500px !important; /* 增加高度以容纳工具栏和地图 */
+        min-height: 500px !important;
+    }
+
+    #map {
+        /* 不需要设置 height，由 flex: 1 自动填充 */
+        flex: 1; /* 保持 flex: 1 以占据剩余空间 */
+        min-height: 450px !important;
+    }
+
     .location-toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -700,5 +1053,19 @@ body {
     .toolbar-buttons {
         width: 100%;
         justify-content: center;
+    }
+}
+
+/* 超小屏幕（iPhone SE 等）额外优化 */
+@media (max-width: 375px) {
+    .map-container {
+        height: 450px !important; /* 增加高度以容纳工具栏和地图 */
+        min-height: 450px !important;
+    }
+
+    #map {
+        /* 不需要设置 height，由 flex: 1 自动填充 */
+        flex: 1; /* 保持 flex: 1 以占据剩余空间 */
+        min-height: 400px !important;
     }
 }

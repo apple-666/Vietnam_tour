@@ -8,14 +8,49 @@ let currentDayLayer = null;
 
 // 初始化地图
 function initMap() {
-    // 创建地图，中心定位在胡志明市
-    map = L.map('map').setView([10.7740, 106.6900], 13);
+    console.log('Initializing map...');
 
-    // 添加地图图层（使用OpenStreetMap）
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const mapContainer = document.getElementById('map');
+    console.log('Map container size:', mapContainer.offsetWidth, 'x', mapContainer.offsetHeight);
+
+    // 创建地图，中心定位在胡志明市
+    map = L.map('map', {
+        // 确保地图在移动端正确渲染
+        preferCanvas: true,
+        zoomControl: true,
+        // Android 兼容性优化
+        fadeAnimation: true,
+        zoomAnimation: true,
+        markerZoomAnimation: true,
+        // 修复 Android 端地图显示问题
+        updateWhenIdle: false,  // 移动端持续更新
+        keepInView: false
+    }).setView([10.7740, 106.6900], 13);
+
+    // 添加地图图层（使用OpenStreetMap HTTPS 版本）
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+        maxZoom: 19,
+        // Android 优化选项
+        subdomains: 'abc',
+        errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        detectRetina: true
+    });
+
+    // 监听瓦片加载事件
+    tileLayer.on('loading', function() {
+        console.log('Map tiles loading...');
+    });
+
+    tileLayer.on('load', function() {
+        console.log('Map tiles loaded successfully!');
+    });
+
+    tileLayer.on('tileerror', function(error) {
+        console.error('Tile loading error:', error);
+    });
+
+    tileLayer.addTo(map);
 
     // 添加标记
     addHotelMarkers();
@@ -29,9 +64,42 @@ function initMap() {
     renderHotelList();
     renderDetailSchedule();
     renderEmergencyContacts();
+    renderExchangeRate();  // 渲染汇率信息
     renderDataVersion();
     updatePageTitle();
     populateLocationSelect();
+
+    // 使用 ResizeObserver 监听容器尺寸变化
+    const resizeObserver = new ResizeObserver(entries => {
+        console.log('Map container resized:', entries[0].contentRect);
+        map.invalidateSize();
+    });
+
+    resizeObserver.observe(mapContainer);
+    console.log('ResizeObserver attached to map container');
+
+    // 多次延迟调用 invalidateSize 确保地图正确渲染
+    const delays = [100, 300, 500, 1000];
+    delays.forEach(delay => {
+        setTimeout(() => {
+            map.invalidateSize();
+            console.log(`Map invalidated (${delay}ms) - Size:`, mapContainer.offsetWidth, 'x', mapContainer.offsetHeight);
+        }, delay);
+    });
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', function() {
+        console.log('Window resized');
+        map.invalidateSize();
+    });
+
+    // 监听设备方向变化（移动端）
+    window.addEventListener('orientationchange', function() {
+        console.log('Orientation changed');
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
+    });
 }
 
 // 添加酒店标记
@@ -261,13 +329,10 @@ function toggleDayRoute() {
     }
 }
 
-// 页面加载完成后初始化地图
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
+// 页面完全加载后初始化地图（使用 window.onload 确保所有资源加载完成）
+window.addEventListener('load', function() {
+    console.log('Window fully loaded');
     console.log('tourData:', tourData);
-    console.log('tourData.airports:', tourData.airports);
-    console.log('tourData.hotels:', tourData.hotels);
-    console.log('tourData.attractions:', tourData.attractions);
 
     if (typeof tourData === 'undefined') {
         console.error('tourData is undefined! Check data.js loading.');
@@ -278,6 +343,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap();
     updateTimes();
     setInterval(updateTimes, 1000); // 每秒更新时间
+});
+
+// DOMContentLoaded 时先更新时间和初始化统计数据
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    updateTimes();
+    initStats(); // 初始化浏览量和点赞
 });
 
 // 更新双时区时间
@@ -425,6 +497,134 @@ function toggleDaySchedule(day) {
     }
 }
 
+// ========== 浏览量和点赞功能 ==========
+
+// 安全的 localStorage 操作函数
+function safeLocalStorage(action, key, value) {
+    try {
+        // 检查 localStorage 是否可用
+        if (typeof localStorage === 'undefined') {
+            console.warn('localStorage 不可用');
+            return null;
+        }
+
+        // 测试写入（某些浏览器在隐身模式下会报错）
+        const testKey = '__localStorage_test__';
+        localStorage.setItem(testKey, 'test');
+        localStorage.removeItem(testKey);
+
+        // 执行实际操作
+        switch (action) {
+            case 'get':
+                return localStorage.getItem(key);
+            case 'set':
+                localStorage.setItem(key, value);
+                return true;
+            case 'remove':
+                localStorage.removeItem(key);
+                return true;
+            default:
+                return null;
+        }
+    } catch (error) {
+        console.error('localStorage 操作失败:', error.message);
+        return null;
+    }
+}
+
+// 初始化统计数据
+function initStats() {
+    console.log('初始化浏览量和点赞数据...');
+    // 从 localStorage 获取数据（使用安全函数）
+    let views = safeLocalStorage('get', 'vietnam_tour_views') || '0';
+    let likes = safeLocalStorage('get', 'vietnam_tour_likes') || '0';
+
+    console.log('当前数据 - 浏览量:', views, '点赞数:', likes);
+
+    // 如果是第一次访问，给一些初始数据让页面看起来不那么冷清
+    if (views === '0') {
+        views = '1'; // 第一次访问
+    }
+
+    // 增加浏览量（每次页面加载都+1）
+    views = parseInt(views) + 1;
+    safeLocalStorage('set', 'vietnam_tour_views', views.toString());
+
+    console.log('更新后 - 浏览量:', views);
+
+    // 显示数据
+    updateStatsDisplay(views, likes);
+
+    // 绑定点赞按钮事件
+    const likeBtn = document.getElementById('likeBtn');
+    if (likeBtn) {
+        console.log('绑定点赞按钮事件');
+        likeBtn.addEventListener('click', function() {
+            handleLike();
+        });
+    } else {
+        console.error('找不到点赞按钮元素！');
+    }
+}
+
+// 更新统计数据显示
+function updateStatsDisplay(views, likes) {
+    const viewCountEl = document.getElementById('viewCount');
+    const likeCountEl = document.getElementById('likeCount');
+
+    if (viewCountEl) {
+        viewCountEl.textContent = formatNumber(views);
+        console.log('浏览量已更新:', formatNumber(views));
+    } else {
+        console.error('找不到 viewCount 元素！');
+    }
+
+    if (likeCountEl) {
+        likeCountEl.textContent = formatNumber(likes);
+        console.log('点赞数已更新:', formatNumber(likes));
+    } else {
+        console.error('找不到 likeCount 元素！');
+    }
+}
+
+// 处理点赞
+function handleLike() {
+    console.log('点赞按钮被点击');
+    // 获取当前点赞数（使用安全函数）
+    let likes = parseInt(safeLocalStorage('get', 'vietnam_tour_likes') || '0');
+
+    // 增加点赞数
+    likes = likes + 1;
+    safeLocalStorage('set', 'vietnam_tour_likes', likes.toString());
+
+    console.log('点赞成功！当前点赞数:', likes);
+
+    // 更新显示
+    const likeCountEl = document.getElementById('likeCount');
+    if (likeCountEl) {
+        // 添加动画效果
+        likeCountEl.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+            likeCountEl.textContent = formatNumber(likes);
+            likeCountEl.style.transform = 'scale(1)';
+        }, 150);
+    }
+
+    // 视觉反馈：点赞按钮闪烁
+    const likeBtn = document.getElementById('likeBtn');
+    if (likeBtn) {
+        likeBtn.classList.add('liked');
+        setTimeout(() => {
+            likeBtn.classList.remove('liked');
+        }, 300);
+    }
+}
+
+// 格式化数字（添加千分位）
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 // 渲染紧急联系方式
 function renderEmergencyContacts() {
     const emergencyContacts = document.getElementById('emergencyContacts');
@@ -443,6 +643,54 @@ function renderEmergencyContacts() {
 
     html += '</div>';
     emergencyContacts.innerHTML = html;
+}
+
+// 渲染汇率信息
+function renderExchangeRate() {
+    const exchangeRateEl = document.getElementById('exchangeRate');
+    if (!exchangeRateEl) return;
+
+    const rate = tourData.exchangeRate;
+    if (!rate) return;
+
+    let html = '<div class="exchange-rate">';
+
+    // 显示当前汇率
+    html += `
+        <div class="rate-main">
+            <div class="rate-formula">
+                <span class="currency-cny">1 ${rate.cny}</span>
+                <span class="rate-equals">=</span>
+                <span class="rate-value">${rate.rate.toLocaleString()}</span>
+                <span class="currency-vnd">${rate.vnd}</span>
+            </div>
+            <div class="rate-note">💡 ${rate.note}</div>
+            <div class="rate-updated">📅 更新时间: ${rate.lastUpdated}</div>
+        </div>
+    `;
+
+    // 显示常用金额参考
+    if (rate.commonAmounts && rate.commonAmounts.length > 0) {
+        html += '<div class="rate-quick-ref">';
+        html += '<div class="quick-ref-title">💰 常用金额速查</div>';
+        html += '<div class="quick-ref-list">';
+
+        rate.commonAmounts.forEach(amount => {
+            html += `
+                <div class="quick-ref-item">
+                    <span class="ref-cny">¥${amount.cny}</span>
+                    <span class="ref-arrow">→</span>
+                    <span class="ref-vnd">${amount.vnd.toLocaleString()}₫</span>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        html += '</div>';
+    }
+
+    html += '</div>';
+    exchangeRateEl.innerHTML = html;
 }
 
 // 渲染数据版本信息
