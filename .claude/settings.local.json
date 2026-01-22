@@ -14,7 +14,8 @@
       "Bash(timeout:*)",
       "Bash(exit:*)",
       "Bash(ls:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git fetch:*)"
     ]
   }
 }
