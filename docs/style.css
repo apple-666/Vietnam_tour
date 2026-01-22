@@ -106,6 +106,24 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* 汇率比例显示 */
+.rate-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.rate-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+}
+
 /* PDF 下载按钮 */
 .pdf-download-btn {
     display: inline-flex;
@@ -788,9 +806,14 @@ body {
 
     /* 确保头部内容在移动端可见 */
     .stats-display,
-    .pdf-download-btn {
+    .pdf-download-btn,
+    .rate-display {
         width: 100%;
         justify-content: center;
+    }
+
+    .rate-text {
+        font-size: 13px;  /* 移动端稍微缩小 */
     }
 }
 
