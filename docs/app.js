@@ -740,14 +740,30 @@ function safeLocalStorage(action, key, value) {
 // 初始化统计数据
 function initStats() {
     console.log('💾 初始化浏览量和点赞数据...');
-    let views = safeLocalStorage('get', 'vietnam_tour_views') || '0';
-    let likes = safeLocalStorage('get', 'vietnam_tour_likes') || '0';
-    console.log('📊 当前数据 - 浏览量:', views, '点赞数:', likes);
+    let views = safeLocalStorage('get', 'vietnam_tour_views');
+    let likes = safeLocalStorage('get', 'vietnam_tour_likes');
 
-    if (views === '0') views = '1';
-    views = parseInt(views) + 1;
+    // 如果是第一次访问（localStorage为空），使用初始值
+    if (!views || views === '0') {
+        views = '756';  // 初始浏览量
+        console.log('🎯 首次访问，使用初始值');
+    } else {
+        // 否则增加浏览量（每次页面加载都+1）
+        views = (parseInt(views) + 1).toString();
+        console.log('📈 浏览量+1');
+    }
+
+    if (!likes || likes === '0') {
+        likes = '2658';  // 初始点赞数
+        console.log('⭐ 首次访问，使用初始点赞值');
+    }
+
+    // 保存到 localStorage
     safeLocalStorage('set', 'vietnam_tour_views', views.toString());
-    console.log('✅ 更新后 - 浏览量:', views);
+    safeLocalStorage('set', 'vietnam_tour_likes', likes.toString());
+
+    console.log('📊 当前数据 - 浏览量:', views, '点赞数:', likes);
+    console.log('✅ 初始化完成 - 浏览量:', views, '点赞数:', likes);
 
     updateStatsDisplay(views, likes);
 
