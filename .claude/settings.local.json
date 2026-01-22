@@ -13,7 +13,8 @@
       "Bash(done:*)",
       "Bash(timeout:*)",
       "Bash(exit:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch"
     ]
   }
 }

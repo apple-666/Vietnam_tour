@@ -84,6 +84,18 @@
         <div class="main-content">
             <!-- 侧边栏 -->
             <aside class="sidebar">
+                <!-- 快速定位工具栏 -->
+                <div class="panel">
+                    <h3>📍 快速定位</h3>
+                    <select id="locationSelect" class="location-select" onchange="focusLocation(this.value)">
+                        <option value="">-- 选择要查看的地点 --</option>
+                    </select>
+                    <div class="toolbar-buttons" style="margin-top: 10px;">
+                        <button onclick="fitAllMarkers()" class="toolbar-btn" style="width: 100%;">🔍 显示全部地点</button>
+                        <button onclick="toggleDayRoute()" class="toolbar-btn" style="width: 100%; margin-top: 5px;">🛤️ 显示游览路线</button>
+                    </div>
+                </div>
+
                 <!-- 航班信息 -->
                 <div class="panel">
                     <h3>✈️ 航班信息</h3>
@@ -120,26 +132,10 @@
                     <div id="emergencyContacts"></div>
                 </div>
 
-                <!-- 汇率信息 -->
-                <div class="panel">
-                    <h3>💱 汇率参考</h3>
-                    <div id="exchangeRate"></div>
-                </div>
             </aside>
 
             <!-- 地图容器 -->
             <div class="map-container">
-                <!-- 快速定位工具栏 -->
-                <div class="location-toolbar">
-                    <label for="locationSelect">📍 快速定位：</label>
-                    <select id="locationSelect" class="location-select" onchange="focusLocation(this.value)">
-                        <option value="">-- 选择要查看的地点 --</option>
-                    </select>
-                    <div class="toolbar-buttons">
-                        <button onclick="fitAllMarkers()" class="toolbar-btn" title="显示全部地点">🔍 显示全部</button>
-                        <button onclick="toggleDayRoute()" class="toolbar-btn" title="显示/隐藏游览路线">🛤️ 显示路线</button>
-                    </div>
-                </div>
                 <div id="map"></div>
             </div>
         </div>
