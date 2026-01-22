@@ -106,6 +106,112 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* PDF 下载按钮 */
+.pdf-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;  /* 稍微缩小以容纳更长文字 */
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    cursor: pointer;
+    white-space: nowrap;  /* 防止文字换行 */
+}
+
+.pdf-download-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pdf-download-btn:active {
+    transform: translateY(0);
+}
+
+/* 浏览量和点赞统计 */
+.stats-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: white;
+}
+
+.stat-item.clickable {
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.stat-item.clickable:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.stat-item.clickable:active {
+    transform: scale(0.95);
+}
+
+.stat-item.clickable.liked {
+    animation: likeAnimation 0.3s ease;
+}
+
+@keyframes likeAnimation {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* 星星飘动动画 */
+.floating-star {
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+                 0 0 20px rgba(255, 215, 0, 0.6),
+                 0 0 30px rgba(255, 215, 0, 0.4);
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+}
+
+.stat-icon {
+    font-size: 16px;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 15px;
+    min-width: 30px;
+    text-align: center;
+    transition: transform 0.15s ease;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
 .badge {
     background: rgba(255, 255, 255, 0.25);
     padding: 6px 16px;
@@ -726,4 +832,166 @@ body {
     .main-content {
         min-height: auto;
     }
+
+    /* PDF 下载按钮和统计在移动端 */
+    .pdf-download-btn {
+        width: 100%;
+        font-size: 12px;  /* 移动端进一步缩小 */
+        padding: 8px 12px;
+        justify-content: center;
+    }
+
+    .stats-display {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========== 汇率信息样式 ========== */
+
+/* 汇率信息 */
+.exchange-rate {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rate-main {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 16px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+}
+
+.rate-formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.currency-cny {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.currency-vnd {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.rate-equals {
+    font-size: 20px;
+}
+
+.rate-value {
+    font-size: 24px;
+    color: #FFD700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.rate-note {
+    font-size: 12px;
+    opacity: 0.95;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.rate-updated {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 6px;
+}
+
+/* 常用金额速查 */
+.rate-quick-ref {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.quick-ref-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.quick-ref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quick-ref-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+}
+
+.quick-ref-item:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    transform: translateX(4px);
+}
+
+.ref-cny {
+    font-weight: 600;
+    color: #1976d2;
+    min-width: 50px;
+}
+
+.ref-arrow {
+    color: #999;
+    font-size: 14px;
+}
+
+.ref-vnd {
+    font-weight: 600;
+    color: #d32f2f;
+    text-align: right;
+}
+
+/* ========== Android 地图优化 ========== */
+
+/* Leaflet 容器优化 */
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* 修复 Android 地图瓦片加载问题 */
+.leaflet-tile-container img {
+    /* 防止瓦片闪烁 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* 确保瓦片不透明 */
+    background: transparent;
+}
+
+/* 修复 Android Chrome 地图交互问题 */
+.leaflet-overlay-pane,
+.leaflet-marker-pane,
+.leaflet-shadow-pane,
+.leaflet-popup-pane {
+    /* 确保所有图层正确渲染 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }

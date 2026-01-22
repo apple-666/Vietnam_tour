@@ -39,6 +39,24 @@
                             <span class="time-value" id="hcmcTime">--:--:--</span>
                         </div>
                     </div>
+                    <!-- 浏览量和点赞 -->
+                    <div class="stats-display">
+                        <div class="stat-item" title="总浏览量">
+                            <span class="stat-icon">✨</span>
+                            <span class="stat-value" id="viewCount">0</span>
+                            <span class="stat-label">浏览</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item clickable" id="likeBtn" title="点击点赞">
+                            <span class="stat-icon">⭐</span>
+                            <span class="stat-value" id="likeCount">0</span>
+                            <span class="stat-label">点赞</span>
+                        </div>
+                    </div>
+                    <!-- PDF 下载按钮 -->
+                    <a href="../20260123【上海往返】胡志明4天纯玩（出团通知书）.pdf" download class="pdf-download-btn" title="下载完整行程单">
+                        📄 详细行程单（由若男提供）
+                    </a>
                     <div class="copyright">© 2026 Double Apple (小鹏)</div>
                 </div>
             </div>
@@ -83,6 +101,12 @@
                     <h3>📞 紧急联系</h3>
                     <div id="emergencyContacts"></div>
                 </div>
+
+                <!-- 汇率信息 -->
+                <div class="panel">
+                    <h3>💱 汇率参考</h3>
+                    <div id="exchangeRate"></div>
+                </div>
             </aside>
 
             <!-- 地图容器 -->
@@ -111,18 +135,5 @@
 
     <!-- 主应用 -->
     <script src="app.js"></script>
-
-    <!-- 初始化应用 - 确保在所有资源加载后执行 -->
-    <script>
-        // 使用 window.load 确保所有资源（包括图片、样式）都加载完成
-        window.addEventListener('load', function() {
-            console.log('Window loaded, initializing app...');
-            if (typeof initializeApp === 'function') {
-                initializeApp();
-            } else {
-                console.error('initializeApp function not found!');
-            }
-        });
-    </script>
 </body>
 </html>
