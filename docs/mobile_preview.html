@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android 端布局预览</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- 自定义样式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .preview-container {
+            max-width: 768px;  /* 模拟Android设备宽度 */
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 2px solid #667eea;
+        }
+
+        /* 顶部提示栏 */
+        .preview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .preview-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .preview-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 设备模拟框架 */
+        .device-frame {
+            background: #333;
+            padding: 8px 8px 24px 8px;
+            border-radius: 24px;
+            margin: 16px;
+        }
+
+        .device-screen {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 主内容区 - 模拟移动端 */
+        .main-content {
+            display: flex;
+            flex-direction: column;  /* 移动端垂直排列 */
+            height: auto;
+            min-height: 600px;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 100%;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* 快速定位样式 */
+        .location-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            background: white;
+            margin-bottom: 10px;
+        }
+
+        .toolbar-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toolbar-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* 地图容器 */
+        .map-container {
+            width: 100%;
+            height: 50vh;
+            min-height: 400px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 内容列表 */
+        .flight-item, .hotel-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .flight-item:last-child, .hotel-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .item-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* 提示信息 */
+        .info-note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin: 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1565C0;
+        }
+
+        .info-note strong {
+            color: #0D47A1;
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 返回主页按钮 */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- 顶部提示 -->
+        <div class="preview-header">
+            <h1>📱 Android 端布局预览</h1>
+            <p>这是模拟 Android 设备的显示效果（宽度 768px）</p>
+        </div>
+
+        <!-- 设备框架 -->
+        <div class="device-frame">
+            <div class="device-screen">
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 侧边栏内容 -->
+                    <aside class="sidebar">
+                        <!-- 快速定位 -->
+                        <div class="panel">
+                            <h3>📍 快速定位</h3>
+                            <select class="location-select">
+                                <option value="">-- 选择要查看的地点 --</option>
+                                <option value="1">槟城传统市场</option>
+                                <option value="2">范五老街</option>
+                                <option value="3">粉红教堂</option>
+                                <option value="4">古邮局</option>
+                            </select>
+                            <div class="toolbar-buttons">
+                                <button class="toolbar-btn">🔍 显示全部地点</button>
+                                <button class="toolbar-btn">🛤️ 显示游览路线</button>
+                            </div>
+
+                            <!-- 地图容器（在这里） -->
+                            <div class="map-container">
+                                <div id="map"></div>
+                            </div>
+                        </div>
+
+                        <!-- 航班信息 -->
+                        <div class="panel">
+                            <h3>✈️ 航班信息</h3>
+                            <div class="flight-item">
+                                <div class="item-label">去程航班</div>
+                                <div class="item-value">CZ6077 | 2026-01-23 08:35</div>
+                            </div>
+                            <div class="flight-item">
+                                <div class="item-label">返程航班</div>
+                                <div class="item-value">CZ6078 | 2026-01-26 13:10</div>
+                            </div>
+                        </div>
+
+                        <!-- 酒店信息 -->
+                        <div class="panel">
+                            <h3>🏨 住宿酒店</h3>
+                            <div class="hotel-item">
+                                <div class="item-label">酒店名称</div>
+                                <div class="item-value">胡志明新山一酒店</div>
+                            </div>
+                            <div class="hotel-item">
+                                <div class="item-label">地址</div>
+                                <div class="item-value">胡志明市中心，交通便利</div>
+                            </div>
+                        </div>
+
+                        <!-- 行程概览 -->
+                        <div class="panel">
+                            <h3>📅 行程概览</h3>
+                            <div class="flight-item">
+                                <div class="item-label">D1</div>
+                                <div class="item-value">槟城市场、范五老街</div>
+                            </div>
+                            <div class="flight-item">
+                                <div class="item-item">D2</div>
+                                <div class="item-value">粉红教堂、古邮局、歌剧院等</div>
+                            </div>
+                            <div class="flight-item">
+                                <div class="item-label">D3</div>
+                                <div class="item-value">美拖市湄公河一日游</div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="info-note">
+            <strong>💡 说明：</strong><br>
+            此页面模拟 Android 端（宽度 768px）的显示效果。<br>
+            地图容器已放置在快速定位面板内部，您可以直接在这里预览布局效果。
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-buttons">
+            <a href="index.html" class="btn-secondary">📱 返回主页面</a>
+            <a href="offline_test.html" class="btn-secondary">🗺️ 离线地图测试</a>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="index.html" class="back-link">← 返回主页面</a>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- 数据文件 -->
+    <script src="data.js"></script>
+
+    <!-- 主应用逻辑（简化版，只用于预览布局） -->
+    <script>
+        // 初始化预览地图
+        const map = L.map('map').setView([10.7740, 106.6900], 13);
+
+        // 添加简化版瓦片（使用在线瓦片）
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap',
+            maxZoom: 15
+        }).addTo(map);
+
+        // 添加示例标记
+        // 酒店
+        L.marker([10.7729, 106.6935], {
+            icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div style="background: #E53935; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">🏨</div>'
+            })
+        }).addTo(map)
+         .bindPopup('<b>胡志明新山一酒店</b><br>胡志明市中心');
+
+        // 景点
+        const attractions = [
+            { lat: 10.7718, lng: 106.6855, name: '槟城传统市场', icon: '1' },
+            { lat: 10.7750, lng: 106.6900, name: '范五老街', icon: '2' },
+            { lat: 10.7815, lng: 106.6850, name: '粉红教堂', icon: '3' },
+            { lat: 10.7795, lng: 106.6980, name: '古邮局', icon: '4' }
+        ];
+
+        const dayColors = {
+            1: '#1E88E5',
+            2: '#43A047',
+            3: '#FB8C00',
+            4: '#8E24AA'
+        };
+
+        attractions.forEach(attr => {
+            const color = dayColors[attr.icon] || '#666';
+            L.marker([attr.lat, attr.lng], {
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background: ${color}; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold;">${attr.icon}</div>`
+                })
+            }).addTo(map)
+             .bindPopup(`<b>${attr.name}</b>`);
+        });
+
+        console.log('✅ 预览页面地图已加载');
+    </script>
+</body>
+</html>

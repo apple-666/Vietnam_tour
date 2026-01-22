@@ -1,8 +1,8 @@
 // 旅游数据
 // 数据版本号 - 每次更新数据时请修改此版本号
-const DATA_VERSION = '2.1.3';
+const DATA_VERSION = '2.1.4';
 // 数据最后更新时间
-const DATA_LAST_UPDATED = '2026-01-23 00:13:30';
+const DATA_LAST_UPDATED = '2026-01-23 01:20:00';
 
 const tourData = {
     // 基本信息
