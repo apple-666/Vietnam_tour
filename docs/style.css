@@ -313,6 +313,7 @@ body {
     display: flex;
     height: calc(100vh - 180px);
     min-height: 600px;
+    position: relative; /* 为地图容器的绝对定位提供参考 */
 }
 
 /* 侧边栏 */
@@ -359,12 +360,12 @@ body {
 @media (min-width: 769px) {
     .sidebar > .panel:first-child .map-container {
         /* 桌面端：地图从快速定位panel中移出，显示在右侧 */
-        position: fixed;
-        left: 396px; /* 侧边栏宽度360px + padding */
-        top: 160px; /* 头部高度 */
-        right: 20px;
-        bottom: 20px;
-        width: calc(100% - 416px);
+        position: absolute; /* 使用绝对定位，相对于.main-content */
+        left: 384px; /* 侧边栏360px + padding 24px */
+        top: 0;
+        right: 0;
+        bottom: 0;
+        /* 只设置left和right，让浏览器自动计算宽度 */
         height: auto;
         z-index: 10;
         margin: 0 !important;
