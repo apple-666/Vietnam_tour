@@ -913,21 +913,32 @@ body {
     }
 
     /* 移动端地图：显示在快速定位和航班信息之间 */
+    .sidebar > .panel:first-child {
+        /* 快速定位：order 0（默认，在最前） */
+        order: 0;
+    }
+
     .map-container {
         width: 100%;
         height: 50vh;
         min-height: 400px !important;
         max-height: none;
-        order: 1;  /* 在快速定位之后，其他侧边栏内容之前 */
+        order: 1;  /* 在快速定位之后，航班信息之前 */
         margin: 16px 0;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* 侧边栏从第二个panel开始（航班信息等）放在地图后面 */
-    .sidebar > .panel:not(:first-child) {
-        order: 2;  /* 在地图之后 */
+    /* 侧边栏panel从第二个开始（航班信息等）放在地图后面 */
+    .sidebar > .panel:nth-child(2) {
+        /* 航班信息：order 2 */
+        order: 2;
+    }
+
+    .sidebar > .panel:nth-child(n+3) {
+        /* 其他panel（酒店、行程等）：order 3 */
+        order: 3;
     }
 
     #map {
