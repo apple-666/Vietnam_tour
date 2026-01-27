@@ -15,7 +15,8 @@
       "Bash(exit:*)",
       "Bash(ls:*)",
       "WebSearch",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
